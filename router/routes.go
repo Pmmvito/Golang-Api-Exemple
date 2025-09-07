@@ -1,12 +1,11 @@
 package router
 
 import (
-	
 	"github.com/Pmmvito/Golang-Api-Exemple/handler"
 	"github.com/gin-gonic/gin"
 )
 
-func InitializeRoutes(router *gin.Engine){
+func InitializeRoutes(router *gin.Engine) {
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/opening", handler.ShowOpeningHandler)
@@ -18,6 +17,6 @@ func InitializeRoutes(router *gin.Engine){
 		v1.PUT("/opening", handler.UpdateOpeningHandler)
 
 		v1.GET("/openings", handler.ListOpeningHandler)
-	
+
 	}
 }
