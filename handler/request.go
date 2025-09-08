@@ -5,7 +5,7 @@ import "fmt"
 //CreateOpening
 
 func errParamIsRequired(name, typ string) error {
-	return fmt.Errorf("paramL %s (type: %s) is required", name,typ)
+	return fmt.Errorf("param %s (type: %s) is required", name,typ)
 }
 
 type CreateOpeningRequest struct {
@@ -18,7 +18,7 @@ type CreateOpeningRequest struct {
 }
 
 func (r *CreateOpeningRequest) Validate() error {
-	if r.Role == "" &&r.Company =="" && r.Location =="" && r.Company =="" && r.Location == "" && r.Remote == nil && r.Link == "" && r.Salary <= 0{
+	if r.Role == "" && r.Company =="" && r.Location == "" && r.Remote == nil && r.Link == "" && r.Salary <= 0{
 		return fmt.Errorf("request body is empty")
 	}
 	if r.Role ==""{
