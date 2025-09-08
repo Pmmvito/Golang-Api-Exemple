@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 	"github.com/Pmmvito/Golang-Api-Exemple/schemas"
-	"github.com/glebarez/sqlite" 
+	"gorm.io/driver/sqlite" 
 	"gorm.io/gorm"
 )
 
