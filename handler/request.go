@@ -37,7 +37,7 @@ func (r *CreateOpeningRequest) Validate() error {
 		return errParamIsRequired("link","string") 
 	}
 	if r.Salary <= 0{
-		return errParamIsRequired("salary","int64") 
+		return errParamIsRequired("salary","int64 or Must be greater them 0",) 
 	}
 	return nil
 }
