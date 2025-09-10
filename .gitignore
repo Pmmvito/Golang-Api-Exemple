@@ -2,7 +2,10 @@
 *.ddl
 *.so
 *.dylib
-
+*.env
+.env
+.env.local
+.env.production
 
 
 

@@ -12,5 +12,5 @@ var (
 
 func InitializerHandler() {
 	logger = config.GetLogger("handler")
-	db = config.GetSQLite()
+	db = config.GetPostgreSQL()
 }

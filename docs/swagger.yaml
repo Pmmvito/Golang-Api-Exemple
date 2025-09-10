@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   handler.CreateOpeningRequest:
     properties:
@@ -96,8 +97,19 @@ definitions:
       updatedAt:
         type: string
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: suporte@exemplo.com
+    name: Vitor Benevento
+    url: https://www.linkedin.com/in/vitorbenevento/
+  description: API para gerenciar oportunidades de emprego, construída com Go.
+  license:
+    name: MIT
+    url: https://github.com/Pmmvito/Golang-Api-Exemple/blob/main/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: Go Opportunities API
+  version: "1.0"
 paths:
   /opening:
     delete:
@@ -244,4 +256,10 @@ paths:
       summary: List openings
       tags:
       - Openings
+securityDefinitions:
+  BearerAuth:
+    description: '"Digite ''Bearer '' seguido de um espaço e o token JWT."'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -376,5 +376,13 @@
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Digite 'Bearer ' seguido de um espaço e o token JWT.\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }
