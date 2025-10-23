@@ -1,0 +1,43 @@
+@startuml Activity_Cadastro_Usuario
+' Diagrama de Atividades - Cadastro de Usuário (versão simplificada final)
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F9FAFB
+  BorderColor #1F2937
+  ArrowColor #1F2937
+}
+
+start
+repeat
+  :Usuário na tela de Registro;
+  :Preenche nome, email, senha;
+  :Clica "Registrar";
+  :Validar formato email & força senha;
+  if (Formato/força OK?) then (Sim)
+    :Normalizar email;
+    :Verificar email existente;
+    if (Email em uso?) then (Sim)
+      :Erro: email já cadastrado;
+    else (Não)
+      :Hash senha;
+      :Criar usuário;
+      :Criar config padrão + categorias;
+      :Persistir (transação);
+      if (Transação OK?) then (Sim)
+        :Gerar token sessão;
+        :Registrar sessão;
+        :Sucesso -> Dashboard;
+        stop
+      else (Falha)
+        :Rollback;
+        :Erro genérico;
+      endif
+    endif
+  else (Inválido)
+    :Erro validação;
+  endif
+repeat while (Tentar novamente?) is (Sim)
+
+:Usuário desistiu;
+stop
+@enduml

@@ -1,0 +1,251 @@
+@startuml Classes_ControleDeGastos
+' Diagrama de Classes - Controle de Gastos com IA
+' Observação: Classes de domínio + serviços de aplicação + integração IA/OCR.
+' Ajuste conforme a implementação real (este é um modelo conceitual).
+
+!theme spacelab
+hide circle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package Dominio {
+  class Usuario {
+    - id: UUID
+    - nome: string
+    - email: string
+    - senhaHash: string
+    - ativo: boolean
+    - criadoEm: Date
+    - ultimoLogin: Date
+    + validarSenha(senha: string): boolean
+    + ativar(): void
+    + desativar(): void
+  }
+
+  class Categoria {
+    - id: UUID
+    - usuarioId: UUID
+    - nome: string
+    - icone: string
+    - corHex: string
+    - tipo: CategoriaTipo
+    - ordem: number
+    - ativo: boolean
+    + ativar(): void
+    + desativar(): void
+  }
+
+  enum CategoriaTipo {
+    fixa
+    variavel
+  }
+
+  class Despesa {
+    - id: UUID
+    - usuarioId: UUID
+    - categoriaId: UUID
+    - descricao: string
+    - valor: number
+    - data: Date
+    - recorrente: boolean
+    - origem: OrigemDespesa
+    - criadoEm: Date
+    - atualizadoEm: Date
+    + atualizarValor(v: number): void
+    + alterarCategoria(catId: UUID): void
+  }
+
+  enum OrigemDespesa {
+    manual
+    ocr
+    ia
+  }
+
+  class Recibo {
+    - id: UUID
+    - despesaId: UUID
+    - caminhoArquivo: string
+    - textoExtraido: string
+    - confiancaOCR: number
+    - criadoEm: Date
+  }
+
+  class ConfiguracaoUsuario {
+    - usuarioId: UUID
+    - moedaPadrao: string
+    - limiteMensal: number
+    - notificacoesAtivas: boolean
+    - idioma: string
+    - tema: Tema
+    + alterarTema(t: Tema): void
+  }
+
+  enum Tema {
+    claro
+    escuro
+    sistema
+  }
+
+  class DicaGerada {
+    - id: UUID
+    - usuarioId: UUID
+    - tipo: TipoDica
+    - texto: string
+    - origemModelo: string
+    - relevancia: int
+    - criadoEm: Date
+  }
+
+  enum TipoDica {
+    economia
+    planejamento
+    alerta
+  }
+
+  class PlanoRefeicao {
+    - id: UUID
+    - usuarioId: UUID
+    - semanaISO: string
+    - caloriasMeta: int
+    - custoEstimado: number
+    - geradoPorIA: boolean
+    - criadoEm: Date
+    + calcularCusto(): number
+  }
+
+  class ItemRefeicao {
+    - id: UUID
+    - planoId: UUID
+    - diaSemana: DiaSemana
+    - refeicaoTipo: RefeicaoTipo
+    - titulo: string
+    - custoEstimado: number
+  }
+
+  enum DiaSemana {
+    seg
+    ter
+    qua
+    qui
+    sex
+    sab
+    dom
+  }
+
+  enum RefeicaoTipo {
+    cafe
+    almoco
+    janta
+    lanche
+  }
+
+  class Sessao {
+    - token: string
+    - usuarioId: UUID
+    - criadoEm: Date
+    - expiraEm: Date
+    - valido: boolean
+    + invalidar(): void
+    + estaExpirada(): boolean
+  }
+
+  class Sincronizacao {
+    - id: UUID
+    - usuarioId: UUID
+    - origem: OrigemSync
+    - iniciadoEm: Date
+    - finalizadoEm: Date
+    - status: StatusSync
+    + marcarFinal(status: StatusSync): void
+  }
+
+  enum OrigemSync {
+    mobile
+    web
+    backup
+  }
+
+  enum StatusSync {
+    ok
+    erro
+    parcial
+  }
+}
+
+package Servicos {
+  class ServicoAutenticacao {
+    + registrar(nome: string, email: string, senha: string): Usuario
+    + login(email: string, senha: string): Sessao
+    + recuperarSenha(email: string): void
+  }
+
+  class ServicoDespesa {
+    + criarDespesa(dados): Despesa
+    + editarDespesa(id: UUID, dados): Despesa
+    + excluirDespesa(id: UUID): void
+    + listar(usuarioId: UUID, filtro): List<Despesa>
+  }
+
+  class ServicoRelatorio {
+    + gerarDashboard(usuarioId: UUID): DashboardResumo
+    + graficoPorCategoria(usuarioId: UUID, periodo): DadosGrafico
+  }
+
+  class ServicoIA {
+    + extrairDeRecibo(arquivo: Binary): OCRResultado
+    + gerarDicas(usuarioId: UUID): List<DicaGerada>
+    + gerarPlanoRefeicao(usuarioId: UUID, meta: ParametrosPlano): PlanoRefeicao
+  }
+
+  class ServicoSincronizacao {
+    + sincronizar(usuarioId: UUID): Sincronizacao
+  }
+}
+
+package DTOs <<transparent>> {
+  class DashboardResumo {
+    + totalMes: number
+    + variacaoMes: number
+    + topCategorias: List<CategoriaValor>
+  }
+  class DadosGrafico {}
+  class OCRResultado {
+    + texto: string
+    + itensPossiveis: List<string>
+    + valorDetectado: number
+  }
+  class ParametrosPlano {
+    + caloriasMeta: int
+    + limiteCusto: number
+  }
+  class CategoriaValor {
+    + categoriaId: UUID
+    + total: number
+  }
+}
+
+' Relações de composição / agregação
+Usuario "1" o-- "*" Categoria
+Usuario "1" o-- "*" Despesa
+Categoria "1" --o "*" Despesa
+Despesa "1" o-- "*" Recibo
+Usuario "1" -- "1" ConfiguracaoUsuario
+Usuario "1" o-- "*" DicaGerada
+Usuario "1" o-- "*" PlanoRefeicao
+PlanoRefeicao "1" o-- "*" ItemRefeicao
+Usuario "1" o-- "*" Sessao
+Usuario "1" o-- "*" Sincronizacao
+
+' Serviços dependem dos agregados
+ServicoAutenticacao ..> Usuario
+ServicoAutenticacao ..> Sessao
+ServicoDespesa ..> Despesa
+ServicoDespesa ..> Categoria
+ServicoRelatorio ..> Despesa
+ServicoRelatorio ..> Categoria
+ServicoIA ..> Recibo
+ServicoIA ..> DicaGerada
+ServicoIA ..> PlanoRefeicao
+ServicoSincronizacao ..> Sincronizacao
+
+@enduml

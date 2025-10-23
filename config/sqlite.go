@@ -1,42 +1,44 @@
 package config
 
 import (
+	"fmt"
 	"os"
-	"github.com/Pmmvito/Golang-Api-Exemple/schemas"
-	"gorm.io/driver/sqlite" 
+	"path/filepath"
+
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func InitializeSQLite() (*gorm.DB, error) {
-
 	logger := GetLogger("sqlite")
-	dbPath := "./db/main.db"
-	//check if exist
 
-	_,err := os.Stat(dbPath)
-	if os.IsNotExist(err) {
-		logger.Info("DataBase file not found, creating......")
-		
-		if err = os.MkdirAll("./db", os.ModePerm)
-		err != nil {
-			return nil, err
-		}
-		file , err := os.Create(dbPath)
+	dbPath := os.Getenv("SQLITE_PATH")
+	if dbPath == "" {
+		dbPath = "./db/main.db"
+	}
+
+	if err := os.MkdirAll(filepath.Dir(dbPath), os.ModePerm); err != nil {
+		return nil, fmt.Errorf("erro criando diretório do banco: %w", err)
+	}
+
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		logger.Info("Arquivo de banco SQLite não encontrado, criando...")
+		file, err := os.Create(dbPath)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("erro criando arquivo SQLite: %w", err)
 		}
 		file.Close()
-		
 	}
 
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		logger.ErrorF("sqlite opning error: %v", err)
-	}
-	err = db.AutoMigrate(&schemas.Opening{})
-	if err != nil {
-		logger.ErrorF("sqlite automigration error: %v", err)
+		logger.ErrorF("Erro abrindo SQLite: %v", err)
 		return nil, err
 	}
+
+	if err := runMigrations(db); err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }

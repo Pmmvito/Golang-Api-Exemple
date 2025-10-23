@@ -1,0 +1,66 @@
+@startuml Seq_Escanear_Recibo
+' Diagrama de Sequência - Fluxo: Escanear Recibo e Criar Despesa
+' Objetivo: Mostrar interação usuário -> app -> serviço IA/OCR -> persistência.
+' Data: 2025-10-08
+
+skinparam participantStyle Rectangle
+skinparam sequenceArrowThickness 1
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+
+actor Usuario as U
+participant "App Mobile\n(React Native)" as App
+participant "ServicoAutenticacao" as Auth
+participant "ServicoIA" as IA
+participant "ServicoDespesa" as DespesaSrv
+database "Banco de Dados" as DB
+
+== Pré-condição: Usuário autenticado ==
+U -> App : Abrir Tela Scanner
+App -> Auth : validarSessao(token)
+Auth --> App : sessão válida
+
+== Captura & OCR ==
+U -> App : Tirar foto do recibo
+App -> IA : extrairDeRecibo(imagem)
+activate IA
+IA -> IA : Pré-processa imagem
+IA -> IA : OCR + parsing
+IA --> App : OCRResultado(texto, valorDetectado, itensPossiveis)
+deactivate IA
+
+App -> U : Exibe sugestão de valor & itens
+U -> App : Ajusta categoria/valor
+
+== Criação da Despesa ==
+App -> DespesaSrv : criarDespesa(dadosDespesa)
+activate DespesaSrv
+DespesaSrv -> DB : INSERT Despesa
+DB --> DespesaSrv : id/confirm
+
+alt recibo armazenado
+  DespesaSrv -> DB : INSERT Recibo
+  DB --> DespesaSrv : ok
+end
+
+DespesaSrv --> App : Despesa criada
+deactivate DespesaSrv
+
+App -> U : Confirma criação
+
+== Atualização do Dashboard ==
+App -> DespesaSrv : listar(usuarioId, filtroMes)
+DespesaSrv -> DB : SELECT agregações
+DB --> DespesaSrv : dados
+DespesaSrv --> App : lista + resumo
+App -> U : Atualiza cards / gráficos
+
+== Extensão: IA gera dica ==
+App -> IA : gerarDicas(usuarioId)
+activate IA
+IA -> DB : SELECT padrões gastos
+DB --> IA : dados
+IA --> App : List<DicaGerada>
+App -> U : Exibe dica mais relevante
+
+@enduml

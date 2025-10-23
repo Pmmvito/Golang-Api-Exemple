@@ -9,114 +9,18 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Equipe Golang Finance",
+            "email": "contato@example.com"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/opening": {
-            "get": {
-                "description": "Show a job Opening",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Openings"
-                ],
-                "summary": "Show opening",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Opening Identification",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ShowOpeningResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update a job Opening",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Openings"
-                ],
-                "summary": "Update opening",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Opening Identification",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "description": "Opening data to update",
-                        "name": "opening",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.UpdateOpeningRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.UpdateOpeningResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
+        "/auth/login": {
             "post": {
-                "description": "Create a new job Opening",
+                "description": "Valida credenciais e emite um novo token de sessão",
                 "consumes": [
                     "application/json"
                 ],
@@ -124,16 +28,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Openings"
+                    "Auth"
                 ],
+                "summary": "Autenticar usuário",
                 "parameters": [
                     {
-                        "description": "Request body",
-                        "name": "request",
+                        "description": "Credenciais",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateOpeningRequest"
+                            "$ref": "#/definitions/handler.LoginRequest"
                         }
                     }
                 ],
@@ -141,68 +46,38 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateOpeningResponse"
+                            "$ref": "#/definitions/handler.AuthSuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a job Opening",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Openings"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Opening Identification",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.DeleteOpeningResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/handler.APIError"
                         }
                     }
                 }
             }
         },
-        "/openings": {
-            "get": {
-                "description": "List all job Openings",
+        "/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Invalida a sessão atual ou todas as sessões do usuário autenticado",
                 "consumes": [
                     "application/json"
                 ],
@@ -210,26 +85,1069 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Openings"
+                    "Auth"
                 ],
-                "summary": "List openings",
+                "summary": "Encerrar sessão",
+                "parameters": [
+                    {
+                        "description": "Opções de encerramento",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.LogoutRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ListOpeningsResponse"
+                            "$ref": "#/definitions/handler.APISuccess"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/handler.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna os dados do usuário autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Perfil do usuário",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.UserProfileSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Cria um usuário, configura dados padrão e retorna a sessão autenticada",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrar novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados de registro",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.AuthSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna as categorias do usuário autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categorias"
+                ],
+                "summary": "Listar categorias",
+                "parameters": [
+                    {
+                        "enum": [
+                            "true",
+                            "false",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Filtra por status das categorias. Use true para apenas ativas, false para apenas inativas e deixe em branco ou use all para todas.",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CategoryListSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Cria uma categoria personalizada para o usuário",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categorias"
+                ],
+                "summary": "Criar categoria",
+                "parameters": [
+                    {
+                        "description": "Dados da categoria",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CategoryItemSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Atualiza dados de uma categoria existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categorias"
+                ],
+                "summary": "Atualizar categoria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identificador da categoria",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Campos para atualização",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CategoryItemSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Marca uma categoria como inativa",
+                "tags": [
+                    "Categorias"
+                ],
+                "summary": "Desativar categoria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identificador da categoria",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APISuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/summary": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna totais do mês atual e comparação com o mês anterior",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Resumo do dashboard",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.DashboardSummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/expenses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Lista despesas filtradas por mês e ano",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Despesas"
+                ],
+                "summary": "Listar despesas",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano",
+                        "name": "year",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtro por categoria",
+                        "name": "categoryId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Origem: manual|ocr|ia",
+                        "name": "origin",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ExpensesListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Registra uma nova despesa para o usuário autenticado",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Despesas"
+                ],
+                "summary": "Criar despesa",
+                "parameters": [
+                    {
+                        "description": "Dados da despesa",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ExpenseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ExpenseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/expenses/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna os detalhes de uma despesa específica",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Despesas"
+                ],
+                "summary": "Buscar despesa",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identificador da despesa",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ExpenseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Atualiza campos de uma despesa existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Despesas"
+                ],
+                "summary": "Atualizar despesa",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identificador da despesa",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Campos para atualização",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateExpenseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ExpenseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Exclui uma despesa definitivamente",
+                "tags": [
+                    "Despesas"
+                ],
+                "summary": "Remover despesa",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identificador da despesa",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APISuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/meal-plans": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna o plano de refeições salvo para a semana ISO informada (padrão: semana atual)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Refeições"
+                ],
+                "summary": "Consultar plano de refeições da semana",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Semana no formato YYYY-Www (ex: 2024-W37)",
+                        "name": "week",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MealPlanResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/meal-plans/generate": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Cria um plano semanal com receitas baseadas nos itens de compras recentes. Usa heurísticas se o modelo não estiver disponível.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Refeições"
+                ],
+                "summary": "Gerar plano de refeições com Gemini",
+                "parameters": [
+                    {
+                        "description": "Preferências para geração",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GenerateMealPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MealPlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/receipts/scan": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Analisa uma imagem em Base64 usando Gemini e retorna extrações estruturadas",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Recibos"
+                ],
+                "summary": "Processar recibo com OCR",
+                "parameters": [
+                    {
+                        "description": "Dados do recibo",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReceiptScanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReceiptScanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/sync/jobs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Salva o histórico de uma sincronização concluída",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sincronização"
+                ],
+                "summary": "Registrar sincronização",
+                "parameters": [
+                    {
+                        "description": "Origens",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SyncRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SyncJobResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/tips": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna dicas ordenadas por relevância para o usuário autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dicas"
+                ],
+                "summary": "Listar dicas financeiras",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano",
+                        "name": "year",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true para recalcular dicas antes de responder",
+                        "name": "refresh",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.TipResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/tips/generate": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Recalcula dicas com base nos gastos recentes e Gemini. Usa heurísticas caso o modelo não esteja disponível.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dicas"
+                ],
+                "summary": "Gerar novas dicas financeiras",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.TipResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/token-usage": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retorna o histórico de consumo de tokens do usuário autenticado com totais agregados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Token Usage"
+                ],
+                "summary": "Listar consumo de tokens",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Número máximo de registros por página (1-200)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Página a ser retornada (\u003e=1)",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.TokenUsageListSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.APIError"
                         }
                     }
                 }
@@ -237,69 +1155,78 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.CreateOpeningRequest": {
+        "handler.APIError": {
             "type": "object",
             "properties": {
-                "company": {
+                "details": {},
+                "message": {
                     "type": "string"
-                },
-                "link": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "remote": {
-                    "type": "boolean"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "salary": {
-                    "type": "integer"
                 }
             }
         },
-        "handler.CreateOpeningResponse": {
+        "handler.APISuccess": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "expiresAt": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/handler.UserResponse"
+                }
+            }
+        },
+        "handler.AuthSuccessResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/schemas.OpeningResponse"
+                    "$ref": "#/definitions/handler.AuthResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "handler.DeleteOpeningResponse": {
+        "handler.CategoryAggregate": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/handler.CategoryResponse"
+                },
+                "total": {
+                    "type": "number"
+                }
+            }
+        },
+        "handler.CategoryItemSuccess": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/schemas.OpeningResponse"
+                    "$ref": "#/definitions/handler.CategoryResponse"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "handler.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "errorCode": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ListOpeningsResponse": {
+        "handler.CategoryListSuccess": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/schemas.OpeningResponse"
+                        "$ref": "#/definitions/handler.CategoryResponse"
                     }
                 },
                 "message": {
@@ -307,80 +1234,643 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ShowOpeningResponse": {
+        "handler.CategoryRequest": {
             "type": "object",
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/schemas.OpeningResponse"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateOpeningRequest": {
-            "type": "object",
-            "properties": {
-                "company": {
-                    "type": "string"
-                },
-                "link": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "remote": {
+                "active": {
                     "type": "boolean"
                 },
-                "role": {
+                "colorHex": {
                     "type": "string"
                 },
-                "salary": {
+                "icon": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order": {
                     "type": "integer"
-                }
-            }
-        },
-        "handler.UpdateOpeningResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/schemas.OpeningResponse"
                 },
-                "message": {
+                "type": {
                     "type": "string"
                 }
             }
         },
-        "schemas.OpeningResponse": {
+        "handler.CategoryResponse": {
             "type": "object",
             "properties": {
-                "company": {
+                "active": {
+                    "type": "boolean"
+                },
+                "colorHex": {
                     "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "icon": {
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order": {
                     "type": "integer"
                 },
-                "link": {
+                "type": {
                     "type": "string"
                 },
-                "location": {
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.DashboardSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "integer"
+                },
+                "previousTotal": {
+                    "type": "number"
+                },
+                "topCategories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.CategoryAggregate"
+                    }
+                },
+                "totalSpent": {
+                    "type": "number"
+                },
+                "variationPct": {
+                    "type": "number"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.ExpenseRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "categoryId": {
                     "type": "string"
                 },
-                "remote": {
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "receipt": {
+                    "$ref": "#/definitions/handler.ReceiptInput"
+                },
+                "recurring": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.ExpenseResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "$ref": "#/definitions/handler.CategoryResponse"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "receipt": {
+                    "$ref": "#/definitions/handler.ReceiptResponse"
+                },
+                "recurring": {
                     "type": "boolean"
                 },
-                "role": {
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ExpenseSummary": {
+            "type": "object",
+            "properties": {
+                "averageValue": {
+                    "type": "number"
+                },
+                "totalAmount": {
+                    "type": "number"
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.ExpensesListResponse": {
+            "type": "object",
+            "properties": {
+                "expenses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ExpenseResponse"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/handler.ExpenseSummary"
+                }
+            }
+        },
+        "handler.GenerateMealPlanRequest": {
+            "type": "object",
+            "properties": {
+                "budget": {
+                    "type": "number"
+                },
+                "calorieGoal": {
+                    "type": "integer"
+                },
+                "dietaryPreference": {
                     "type": "string"
                 },
-                "salary": {
+                "exclusions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "servings": {
                     "type": "integer"
+                },
+                "week": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.LogoutRequest": {
+            "type": "object",
+            "properties": {
+                "allDevices": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.MealItemResponse": {
+            "type": "object",
+            "properties": {
+                "dayOfWeek": {
+                    "type": "string"
+                },
+                "estimatedCost": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ingredients": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "mealType": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.MealPlanResponse": {
+            "type": "object",
+            "properties": {
+                "calorieGoal": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "estimatedCost": {
+                    "type": "number"
+                },
+                "generatedByAi": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isoWeek": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.MealItemResponse"
+                    }
+                }
+            }
+        },
+        "handler.ReceiptInput": {
+            "type": "object",
+            "properties": {
+                "extractedText": {
+                    "type": "string"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "ocrConfidence": {
+                    "type": "number"
+                }
+            }
+        },
+        "handler.ReceiptItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "unitPrice": {
+                    "type": "number"
+                }
+            }
+        },
+        "handler.ReceiptResponse": {
+            "type": "object",
+            "properties": {
+                "extractedText": {
+                    "type": "string"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ocrConfidence": {
+                    "type": "number"
+                }
+            }
+        },
+        "handler.ReceiptScanRequest": {
+            "type": "object",
+            "properties": {
+                "amountHint": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "imageBase64": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "returnRaw": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.ReceiptScanResponse": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "extractedText": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ReceiptItem"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "rawModelOutput": {
+                    "type": "string"
+                },
+                "savedExpense": {
+                    "$ref": "#/definitions/handler.ExpenseResponse"
+                },
+                "suggestedAmount": {
+                    "type": "number"
+                },
+                "suggestedDate": {
+                    "type": "string"
+                },
+                "tokenCostCents": {
+                    "type": "integer"
+                },
+                "tokensUsed": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "monthlyLimit": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "theme": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SyncJobResponse": {
+            "type": "object",
+            "properties": {
+                "finishedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SyncRequest": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.TipResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "relevance": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.TokenUsageEntryResponse": {
+            "type": "object",
+            "properties": {
+                "costInCents": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "promptTokens": {
+                    "type": "integer"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "requestType": {
+                    "type": "string"
+                },
+                "responseTokens": {
+                    "type": "integer"
+                },
+                "totalTokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.TokenUsageListResponse": {
+            "type": "object",
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.TokenUsageEntryResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/handler.TokenUsagePagination"
+                },
+                "summary": {
+                    "$ref": "#/definitions/handler.TokenUsageSummary"
+                }
+            }
+        },
+        "handler.TokenUsageListSuccess": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/handler.TokenUsageListResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.TokenUsagePagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "totalEntries": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.TokenUsageSummary": {
+            "type": "object",
+            "properties": {
+                "totalCostCents": {
+                    "type": "integer"
+                },
+                "totalPromptTokens": {
+                    "type": "integer"
+                },
+                "totalResponseTokens": {
+                    "type": "integer"
+                },
+                "totalTokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.UpdateExpenseRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "receipt": {
+                    "$ref": "#/definitions/handler.ReceiptInput"
+                },
+                "recurring": {
+                    "type": "boolean"
+                },
+                "removeReceipt": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.UserConfigResponse": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "monthlyLimit": {
+                    "type": "number"
+                },
+                "notificationsEnabled": {
+                    "type": "boolean"
+                },
+                "theme": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UserProfileSuccess": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/handler.UserResponse"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UserResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "config": {
+                    "$ref": "#/definitions/handler.UserConfigResponse"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastLogin": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -389,8 +1879,7 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "BearerAuth": {
-            "description": "\"Digite 'Bearer ' seguido de um espaço e o token JWT.\"",
+        "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -403,9 +1892,9 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
-	Title:            "Go Opportunities API",
-	Description:      "API para gerenciar oportunidades de emprego, construída com Go.",
+	Schemes:          []string{"http"},
+	Title:            "Golang Finance API",
+	Description:      "API para gestão financeira pessoal com suporte a OCR de recibos.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

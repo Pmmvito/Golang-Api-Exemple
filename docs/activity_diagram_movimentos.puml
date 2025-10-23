@@ -1,0 +1,70 @@
+@startuml Activity_Movimentos_Despesas
+' Diagrama de Atividades - Movimentos (versão enxuta)
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #222222
+  ArrowColor #222222
+}
+
+start
+:Usuário abre módulo de Despesas;
+:Carrega lista (mês atual);
+
+repeat
+  :Exibir lista + resumo;
+  if (Adicionar?) then (Sim)
+    :Abrir form;
+    if (OCR?) then (Sim)
+      :Capturar imagem -> OCR;
+      :Pré-preencher campos;
+    else (Não)
+      :Form vazio;
+    endif
+    :Preencher; validar;
+    if (OK?) then (Sim)
+      :Salvar despesa;
+    else (Erro)
+      :Mostrar erros;
+    endif
+  else (Não)
+    if (Editar?) then (Sim)
+      :Selecionar despesa; alterar; validar;
+      if (OK?) then (Sim)
+        :Salvar alterações;
+      else (Falha)
+        :Erros edição;
+      endif
+    else (Não)
+      if (Excluir?) then (Sim)
+        :Selecionar despesa; confirmar;
+        if (Confirma?) then (Sim)
+          :Remover; atualizar resumo;
+        else (Não)
+          :Cancelar exclusão;
+        endif
+      else (Não)
+        if (Scan Recibo?) then (Sim)
+          :Capturar foto; OCR;
+          if (Sucesso OCR?) then (Sim)
+            :Pré-preencher form;
+          else (Falha)
+            :Erro OCR;
+          endif
+        else (Não)
+          if (Filtrar?) then (Sim)
+            :Aplicar filtro; recarregar lista;
+          else (Nenhuma)
+            :Idle / Nada;
+          endif
+        endif
+      endif
+    endif
+  endif
+  :Enfileirar sync background;
+  :Recalcular gráficos;
+repeat while (Continuar?) is (Sim)
+
+:Sair do módulo;
+stop
+@enduml

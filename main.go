@@ -1,3 +1,14 @@
+// @title           Golang Finance API
+// @version         1.0
+// @description     API para gestão financeira pessoal com suporte a OCR de recibos.
+// @contact.name    Equipe Golang Finance
+// @contact.email   contato@example.com
+// @host            localhost:8080
+// @BasePath        /api/v1
+// @schemes         http
+// @securityDefinitions.apikey Bearer
+// @in              header
+// @name            Authorization
 package main
 
 import (

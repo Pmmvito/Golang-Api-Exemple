@@ -1,0 +1,134 @@
+@startuml DER_ControleDeGastos
+' DER (Diagrama Entidade-Relacionamento) - Controle de Gastos com IA
+' Autor: gerado automaticamente
+' Data: 2025-10-08
+' Notação: crow's foot (PlantUML)
+' Observação: Modelo lógico simplificado; ajuste conforme implementação real.
+
+!theme spacelab
+hide circle
+
+' Habilita notação crow's foot
+skinparam linetype ortho
+
+entity "Usuario" as Usuario {
+  *id : UUID <<PK>>
+  --
+  nome : varchar(120)
+  email : varchar(180) <<UNIQUE>>
+  senha_hash : varchar(255)
+  criado_em : datetime
+  ultimo_login : datetime
+  ativo : boolean
+}
+
+entity "Categoria" as Categoria {
+  *id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  nome : varchar(80)
+  icone : varchar(40)
+  cor_hex : char(7)
+  tipo : enum('fixa','variavel')
+  ordem : int
+  ativo : boolean
+}
+
+entity "Despesa" as Despesa {
+  *id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  categoria_id : UUID <<FK>>
+  descricao : varchar(200)
+  valor : decimal(12,2)
+  data : date
+  recorrente : boolean
+  origem : enum('manual','ocr','ia')
+  criado_em : datetime
+  atualizado_em : datetime
+}
+
+entity "Recibo" as Recibo {
+  *id : UUID <<PK>>
+  --
+  despesa_id : UUID <<FK>>
+  caminho_arquivo : varchar(255)
+  texto_extraido : text
+  confianca_ocr : decimal(5,2)
+  criado_em : datetime
+}
+
+entity "ConfiguracaoUsuario" as ConfigUsuario {
+  *usuario_id : UUID <<PK>> <<FK>>
+  --
+  moeda_padrao : char(3)
+  limite_mensal : decimal(12,2)
+  notificacoes_ativas : boolean
+  idioma : char(5)
+  tema : enum('claro','escuro','sistema')
+}
+
+entity "DicaGerada" as DicaGerada {
+  *id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  tipo : enum('economia','planejamento','alerta')
+  texto : text
+  origem_modelo : varchar(80)
+  relevancia : int
+  criado_em : datetime
+}
+
+entity "PlanoRefeicao" as PlanoRefeicao {
+  *id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  semana_iso : char(8)
+  calorias_meta : int
+  custo_estimado : decimal(12,2)
+  gerado_por_ia : boolean
+  criado_em : datetime
+}
+
+entity "ItemRefeicao" as ItemRefeicao {
+  *id : UUID <<PK>>
+  --
+  plano_id : UUID <<FK>>
+  dia_semana : enum('seg','ter','qua','qui','sex','sab','dom')
+  refeicao_tipo : enum('cafe','almoco','janta','lanche')
+  titulo : varchar(120)
+  custo_estimado : decimal(12,2)
+}
+
+entity "Sessao" as Sessao {
+  *token : char(64) <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  criado_em : datetime
+  expira_em : datetime
+  valido : boolean
+}
+
+entity "Sincronizacao" as Sincronizacao {
+  *id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  origem : enum('mobile','web','backup')
+  iniciado_em : datetime
+  finalizado_em : datetime
+  status : enum('ok','erro','parcial')
+}
+
+' Relacionamentos (crow's foot)
+Usuario ||--o{ Categoria : "possui"
+Usuario ||--o{ Despesa : "registra"
+Categoria ||--o{ Despesa : "classifica"
+Despesa ||--o{ Recibo : "possui"
+Usuario ||--|| ConfigUsuario : "config"
+Usuario ||--o{ DicaGerada : "recebe"
+Usuario ||--o{ PlanoRefeicao : "planeja"
+PlanoRefeicao ||--o{ ItemRefeicao : "contém"
+Usuario ||--o{ Sessao : "autentica"
+Usuario ||--o{ Sincronizacao : "executa"
+
+@enduml

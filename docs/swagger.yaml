@@ -1,264 +1,1215 @@
 basePath: /api/v1
 definitions:
-  handler.CreateOpeningRequest:
+  handler.APIError:
     properties:
-      company:
+      details: {}
+      message:
         type: string
-      link:
-        type: string
-      location:
-        type: string
-      remote:
-        type: boolean
-      role:
-        type: string
-      salary:
-        type: integer
     type: object
-  handler.CreateOpeningResponse:
+  handler.APISuccess:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  handler.AuthResponse:
+    properties:
+      expiresAt:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/handler.UserResponse'
+    type: object
+  handler.AuthSuccessResponse:
     properties:
       data:
-        $ref: '#/definitions/schemas.OpeningResponse'
+        $ref: '#/definitions/handler.AuthResponse'
       message:
         type: string
     type: object
-  handler.DeleteOpeningResponse:
+  handler.CategoryAggregate:
+    properties:
+      category:
+        $ref: '#/definitions/handler.CategoryResponse'
+      total:
+        type: number
+    type: object
+  handler.CategoryItemSuccess:
     properties:
       data:
-        $ref: '#/definitions/schemas.OpeningResponse'
+        $ref: '#/definitions/handler.CategoryResponse'
       message:
         type: string
     type: object
-  handler.ErrorResponse:
-    properties:
-      errorCode:
-        type: string
-      message:
-        type: string
-    type: object
-  handler.ListOpeningsResponse:
+  handler.CategoryListSuccess:
     properties:
       data:
         items:
-          $ref: '#/definitions/schemas.OpeningResponse'
+          $ref: '#/definitions/handler.CategoryResponse'
         type: array
       message:
         type: string
     type: object
-  handler.ShowOpeningResponse:
+  handler.CategoryRequest:
     properties:
-      data:
-        $ref: '#/definitions/schemas.OpeningResponse'
-      message:
-        type: string
-    type: object
-  handler.UpdateOpeningRequest:
-    properties:
-      company:
-        type: string
-      link:
-        type: string
-      location:
-        type: string
-      remote:
+      active:
         type: boolean
-      role:
+      colorHex:
         type: string
-      salary:
+      icon:
+        type: string
+      name:
+        type: string
+      order:
         type: integer
-    type: object
-  handler.UpdateOpeningResponse:
-    properties:
-      data:
-        $ref: '#/definitions/schemas.OpeningResponse'
-      message:
+      type:
         type: string
     type: object
-  schemas.OpeningResponse:
+  handler.CategoryResponse:
     properties:
-      company:
+      active:
+        type: boolean
+      colorHex:
         type: string
       createdAt:
         type: string
-      deletedAt:
+      icon:
         type: string
       id:
+        type: string
+      name:
+        type: string
+      order:
         type: integer
-      link:
+      type:
         type: string
-      location:
+      updatedAt:
         type: string
-      remote:
+    type: object
+  handler.DashboardSummaryResponse:
+    properties:
+      month:
+        type: integer
+      previousTotal:
+        type: number
+      topCategories:
+        items:
+          $ref: '#/definitions/handler.CategoryAggregate'
+        type: array
+      totalSpent:
+        type: number
+      variationPct:
+        type: number
+      year:
+        type: integer
+    type: object
+  handler.ExpenseRequest:
+    properties:
+      amount:
+        type: number
+      categoryId:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      origin:
+        type: string
+      receipt:
+        $ref: '#/definitions/handler.ReceiptInput'
+      recurring:
         type: boolean
-      role:
+    type: object
+  handler.ExpenseResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        $ref: '#/definitions/handler.CategoryResponse'
+      categoryId:
         type: string
-      salary:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      origin:
+        type: string
+      receipt:
+        $ref: '#/definitions/handler.ReceiptResponse'
+      recurring:
+        type: boolean
+      updatedAt:
+        type: string
+    type: object
+  handler.ExpenseSummary:
+    properties:
+      averageValue:
+        type: number
+      totalAmount:
+        type: number
+      totalCount:
         type: integer
+    type: object
+  handler.ExpensesListResponse:
+    properties:
+      expenses:
+        items:
+          $ref: '#/definitions/handler.ExpenseResponse'
+        type: array
+      summary:
+        $ref: '#/definitions/handler.ExpenseSummary'
+    type: object
+  handler.GenerateMealPlanRequest:
+    properties:
+      budget:
+        type: number
+      calorieGoal:
+        type: integer
+      dietaryPreference:
+        type: string
+      exclusions:
+        items:
+          type: string
+        type: array
+      servings:
+        type: integer
+      week:
+        type: string
+    type: object
+  handler.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.LogoutRequest:
+    properties:
+      allDevices:
+        type: boolean
+    type: object
+  handler.MealItemResponse:
+    properties:
+      dayOfWeek:
+        type: string
+      estimatedCost:
+        type: number
+      id:
+        type: string
+      ingredients:
+        items:
+          type: string
+        type: array
+      instructions:
+        type: string
+      mealType:
+        type: string
+      title:
+        type: string
+    type: object
+  handler.MealPlanResponse:
+    properties:
+      calorieGoal:
+        type: integer
+      createdAt:
+        type: string
+      estimatedCost:
+        type: number
+      generatedByAi:
+        type: boolean
+      id:
+        type: string
+      isoWeek:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/handler.MealItemResponse'
+        type: array
+    type: object
+  handler.ReceiptInput:
+    properties:
+      extractedText:
+        type: string
+      filePath:
+        type: string
+      ocrConfidence:
+        type: number
+    type: object
+  handler.ReceiptItem:
+    properties:
+      description:
+        type: string
+      quantity:
+        type: number
+      total:
+        type: number
+      unitPrice:
+        type: number
+    type: object
+  handler.ReceiptResponse:
+    properties:
+      extractedText:
+        type: string
+      filePath:
+        type: string
+      id:
+        type: string
+      ocrConfidence:
+        type: number
+    type: object
+  handler.ReceiptScanRequest:
+    properties:
+      amountHint:
+        type: number
+      currency:
+        type: string
+      imageBase64:
+        type: string
+      locale:
+        type: string
+      returnRaw:
+        type: boolean
+    type: object
+  handler.ReceiptScanResponse:
+    properties:
+      confidence:
+        type: number
+      currency:
+        type: string
+      extractedText:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/handler.ReceiptItem'
+        type: array
+      model:
+        type: string
+      rawModelOutput:
+        type: string
+      savedExpense:
+        $ref: '#/definitions/handler.ExpenseResponse'
+      suggestedAmount:
+        type: number
+      suggestedDate:
+        type: string
+      tokenCostCents:
+        type: integer
+      tokensUsed:
+        type: integer
+    type: object
+  handler.RegisterRequest:
+    properties:
+      currency:
+        type: string
+      email:
+        type: string
+      language:
+        type: string
+      monthlyLimit:
+        type: number
+      name:
+        type: string
+      password:
+        type: string
+      theme:
+        type: string
+    type: object
+  handler.SyncJobResponse:
+    properties:
+      finishedAt:
+        type: string
+      id:
+        type: string
+      origin:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+    type: object
+  handler.SyncRequest:
+    properties:
+      origin:
+        type: string
+    type: object
+  handler.TipResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      relevance:
+        type: integer
+      source:
+        type: string
+      text:
+        type: string
+      type:
+        type: string
+    type: object
+  handler.TokenUsageEntryResponse:
+    properties:
+      costInCents:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      promptTokens:
+        type: integer
+      requestId:
+        type: string
+      requestType:
+        type: string
+      responseTokens:
+        type: integer
+      totalTokens:
+        type: integer
+    type: object
+  handler.TokenUsageListResponse:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/handler.TokenUsageEntryResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/handler.TokenUsagePagination'
+      summary:
+        $ref: '#/definitions/handler.TokenUsageSummary'
+    type: object
+  handler.TokenUsageListSuccess:
+    properties:
+      data:
+        $ref: '#/definitions/handler.TokenUsageListResponse'
+      message:
+        type: string
+    type: object
+  handler.TokenUsagePagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      totalEntries:
+        type: integer
+    type: object
+  handler.TokenUsageSummary:
+    properties:
+      totalCostCents:
+        type: integer
+      totalPromptTokens:
+        type: integer
+      totalResponseTokens:
+        type: integer
+      totalTokens:
+        type: integer
+    type: object
+  handler.UpdateExpenseRequest:
+    properties:
+      amount:
+        type: number
+      categoryId:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      origin:
+        type: string
+      receipt:
+        $ref: '#/definitions/handler.ReceiptInput'
+      recurring:
+        type: boolean
+      removeReceipt:
+        type: boolean
+    type: object
+  handler.UserConfigResponse:
+    properties:
+      currency:
+        type: string
+      language:
+        type: string
+      monthlyLimit:
+        type: number
+      notificationsEnabled:
+        type: boolean
+      theme:
+        type: string
+    type: object
+  handler.UserProfileSuccess:
+    properties:
+      data:
+        $ref: '#/definitions/handler.UserResponse'
+      message:
+        type: string
+    type: object
+  handler.UserResponse:
+    properties:
+      active:
+        type: boolean
+      config:
+        $ref: '#/definitions/handler.UserConfigResponse'
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      lastLogin:
+        type: string
+      name:
+        type: string
       updatedAt:
         type: string
     type: object
 host: localhost:8080
 info:
   contact:
-    email: suporte@exemplo.com
-    name: Vitor Benevento
-    url: https://www.linkedin.com/in/vitorbenevento/
-  description: API para gerenciar oportunidades de emprego, construída com Go.
-  license:
-    name: MIT
-    url: https://github.com/Pmmvito/Golang-Api-Exemple/blob/main/LICENSE
-  termsOfService: http://swagger.io/terms/
-  title: Go Opportunities API
+    email: contato@example.com
+    name: Equipe Golang Finance
+  description: API para gestão financeira pessoal com suporte a OCR de recibos.
+  title: Golang Finance API
   version: "1.0"
 paths:
-  /opening:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a job Opening
-      parameters:
-      - description: Opening Identification
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.DeleteOpeningResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      tags:
-      - Openings
-    get:
-      consumes:
-      - application/json
-      description: Show a job Opening
-      parameters:
-      - description: Opening Identification
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.ShowOpeningResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Show opening
-      tags:
-      - Openings
+  /auth/login:
     post:
       consumes:
       - application/json
-      description: Create a new job Opening
+      description: Valida credenciais e emite um novo token de sessão
       parameters:
-      - description: Request body
+      - description: Credenciais
         in: body
-        name: request
+        name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateOpeningRequest'
+          $ref: '#/definitions/handler.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.CreateOpeningResponse'
+            $ref: '#/definitions/handler.AuthSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/handler.APIError'
+      summary: Autenticar usuário
       tags:
-      - Openings
-    put:
+      - Auth
+  /auth/logout:
+    post:
       consumes:
       - application/json
-      description: Update a job Opening
+      description: Invalida a sessão atual ou todas as sessões do usuário autenticado
       parameters:
-      - description: Opening Identification
+      - description: Opções de encerramento
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/handler.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.APISuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Encerrar sessão
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      description: Retorna os dados do usuário autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UserProfileSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Perfil do usuário
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Cria um usuário, configura dados padrão e retorna a sessão autenticada
+      parameters:
+      - description: Dados de registro
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AuthSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      summary: Registrar novo usuário
+      tags:
+      - Auth
+  /categories:
+    get:
+      description: Retorna as categorias do usuário autenticado
+      parameters:
+      - description: Filtra por status das categorias. Use true para apenas ativas,
+          false para apenas inativas e deixe em branco ou use all para todas.
+        enum:
+        - "true"
+        - "false"
+        - all
         in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CategoryListSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Listar categorias
+      tags:
+      - Categorias
+    post:
+      consumes:
+      - application/json
+      description: Cria uma categoria personalizada para o usuário
+      parameters:
+      - description: Dados da categoria
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CategoryItemSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Criar categoria
+      tags:
+      - Categorias
+  /categories/{id}:
+    delete:
+      description: Marca uma categoria como inativa
+      parameters:
+      - description: Identificador da categoria
+        in: path
         name: id
         required: true
         type: string
-      - description: Opening data to update
-        in: body
-        name: opening
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateOpeningRequest'
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.UpdateOpeningResponse'
-        "400":
-          description: Bad Request
+            $ref: '#/definitions/handler.APISuccess'
+        "401":
+          description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/handler.APIError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/handler.APIError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Update opening
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Desativar categoria
       tags:
-      - Openings
-  /openings:
-    get:
+      - Categorias
+    put:
       consumes:
       - application/json
-      description: List all job Openings
+      description: Atualiza dados de uma categoria existente
+      parameters:
+      - description: Identificador da categoria
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos para atualização
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CategoryRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ListOpeningsResponse'
+            $ref: '#/definitions/handler.CategoryItemSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: List openings
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Atualizar categoria
       tags:
-      - Openings
+      - Categorias
+  /dashboard/summary:
+    get:
+      description: Retorna totais do mês atual e comparação com o mês anterior
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: Ano
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DashboardSummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Resumo do dashboard
+      tags:
+      - Dashboard
+  /expenses:
+    get:
+      description: Lista despesas filtradas por mês e ano
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: Ano
+        in: query
+        name: year
+        type: integer
+      - description: Filtro por categoria
+        in: query
+        name: categoryId
+        type: string
+      - description: 'Origem: manual|ocr|ia'
+        in: query
+        name: origin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ExpensesListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Listar despesas
+      tags:
+      - Despesas
+    post:
+      consumes:
+      - application/json
+      description: Registra uma nova despesa para o usuário autenticado
+      parameters:
+      - description: Dados da despesa
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ExpenseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ExpenseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Criar despesa
+      tags:
+      - Despesas
+  /expenses/{id}:
+    delete:
+      description: Exclui uma despesa definitivamente
+      parameters:
+      - description: Identificador da despesa
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.APISuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Remover despesa
+      tags:
+      - Despesas
+    get:
+      description: Retorna os detalhes de uma despesa específica
+      parameters:
+      - description: Identificador da despesa
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ExpenseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Buscar despesa
+      tags:
+      - Despesas
+    put:
+      consumes:
+      - application/json
+      description: Atualiza campos de uma despesa existente
+      parameters:
+      - description: Identificador da despesa
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campos para atualização
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateExpenseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ExpenseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Atualizar despesa
+      tags:
+      - Despesas
+  /meal-plans:
+    get:
+      description: 'Retorna o plano de refeições salvo para a semana ISO informada
+        (padrão: semana atual)'
+      parameters:
+      - description: 'Semana no formato YYYY-Www (ex: 2024-W37)'
+        in: query
+        name: week
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MealPlanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Consultar plano de refeições da semana
+      tags:
+      - Refeições
+  /meal-plans/generate:
+    post:
+      consumes:
+      - application/json
+      description: Cria um plano semanal com receitas baseadas nos itens de compras
+        recentes. Usa heurísticas se o modelo não estiver disponível.
+      parameters:
+      - description: Preferências para geração
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/handler.GenerateMealPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MealPlanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Gerar plano de refeições com Gemini
+      tags:
+      - Refeições
+  /receipts/scan:
+    post:
+      consumes:
+      - application/json
+      description: Analisa uma imagem em Base64 usando Gemini e retorna extrações
+        estruturadas
+      parameters:
+      - description: Dados do recibo
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ReceiptScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ReceiptScanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Processar recibo com OCR
+      tags:
+      - Recibos
+  /sync/jobs:
+    post:
+      consumes:
+      - application/json
+      description: Salva o histórico de uma sincronização concluída
+      parameters:
+      - description: Origens
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SyncRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.SyncJobResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Registrar sincronização
+      tags:
+      - Sincronização
+  /tips:
+    get:
+      description: Retorna dicas ordenadas por relevância para o usuário autenticado
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: Ano
+        in: query
+        name: year
+        type: integer
+      - description: true para recalcular dicas antes de responder
+        in: query
+        name: refresh
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.TipResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Listar dicas financeiras
+      tags:
+      - Dicas
+  /tips/generate:
+    post:
+      description: Recalcula dicas com base nos gastos recentes e Gemini. Usa heurísticas
+        caso o modelo não esteja disponível.
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: Ano
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.TipResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Gerar novas dicas financeiras
+      tags:
+      - Dicas
+  /token-usage:
+    get:
+      description: Retorna o histórico de consumo de tokens do usuário autenticado
+        com totais agregados
+      parameters:
+      - description: Número máximo de registros por página (1-200)
+        in: query
+        name: limit
+        type: integer
+      - description: Página a ser retornada (>=1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TokenUsageListSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.APIError'
+      security:
+      - Bearer: []
+      summary: Listar consumo de tokens
+      tags:
+      - Token Usage
+schemes:
+- http
 securityDefinitions:
-  BearerAuth:
-    description: '"Digite ''Bearer '' seguido de um espaço e o token JWT."'
+  Bearer:
     in: header
     name: Authorization
     type: apiKey

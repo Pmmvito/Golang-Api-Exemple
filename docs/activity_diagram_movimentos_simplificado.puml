@@ -1,0 +1,60 @@
+@startuml Movimentos_Despesas_Simples
+' Versão simplificada para debug de renderização
+
+start
+:Usuário abre módulo;
+:Exibir lista + resumo;
+
+if (Adicionar?) then (Sim)
+  :Abrir formulário;
+  if (Usar OCR?) then (Sim)
+    :Capturar imagem;
+    :Executar OCR;
+    :Pré-preencher campos;
+  else (Não)
+    :Form vazio;
+  endif
+  :Preencher/validar;
+  if (Campos ok?) then (Sim)
+    :Salvar despesa;
+  else (Erro)
+    :Mostrar erros;
+  endif
+else (Não)
+  if (Editar?) then (Sim)
+    :Selecionar despesa;
+    :Alterar valores;
+    :Salvar alterações;
+  else (Não)
+    if (Excluir?) then (Sim)
+      :Selecionar despesa;
+      if (Confirma?) then (Sim)
+        :Remover despesa;
+      else (Não)
+        :Cancelar exclusão;
+      endif
+    else (Não)
+      if (Escanear Recibo?) then (Sim)
+        :Capturar foto;
+        :Executar OCR;
+        if (OCR sucesso?) then (Sim)
+          :Pré-preencher formulário;
+        else (Falha)
+          :Mostrar erro OCR;
+        endif
+      else (Não)
+        if (Filtrar?) then (Sim)
+          :Aplicar filtro;
+          :Recarregar lista;
+        else (Nenhuma)
+          :Nenhuma ação;
+        endif
+      endif
+    endif
+  endif
+endif
+
+:Recalcular resumo;
+:Encerrar módulo;
+stop
+@enduml
