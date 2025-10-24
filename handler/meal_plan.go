@@ -140,7 +140,7 @@ func GenerateMealPlanHandler(ctx *gin.Context) {
 		}
 		recordCtx, cancel := context.WithTimeout(ctx.Request.Context(), 5*time.Second)
 		defer cancel()
-	if _, logErr := recordTokenUsage(recordCtx, user.ID, schemas.RequestTypeMealPlan, *usage, metadata); logErr != nil {
+		if _, logErr := recordTokenUsage(recordCtx, user.ID, schemas.RequestTypeMealPlan, *usage, metadata); logErr != nil {
 			getLogger().WarnF("não foi possível registrar uso de tokens: %v", logErr)
 		}
 	}
